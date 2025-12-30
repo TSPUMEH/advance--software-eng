@@ -1,0 +1,4 @@
+function,total_microseconds,call_count,average_microseconds
+DominoLineBuilder::DominoLineBuilder,176,1,176
+DominoLineBuilder::nextRight,27,3,9
+DominoLineBuilder::displayLine,486,1,486
