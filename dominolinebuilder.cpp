@@ -1,4 +1,4 @@
-#include "header.h"
+#include "Header.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -8,6 +8,8 @@
 #include <string>
 #include <atomic>
 #include <cstdlib>
+#include <iomanip>
+#include <ctime>
 
 using std::chrono::steady_clock;
 using std::chrono::microseconds;
@@ -40,26 +42,45 @@ namespace {
         }
     };
 
-    // Write CSV 
+    // Write CSV
     void writeTimingsCsv() {
-        std::ofstream csv("timings.csv");
+        // Check if file exists to decide whether to write header
+        bool fileExists = std::ifstream("timings.csv").good();
+
+        std::ofstream csv("timings.csv", std::ios::app); // Changed to append mode
         if (!csv.is_open()) return;
-        csv << "function,total_microseconds,call_count,average_microseconds\n";
+
+        // Write header only if file is new
+        if (!fileExists) {
+            csv << "timestamp,function,total_microseconds,call_count,average_microseconds\n";
+        }
+
+        // Get current timestamp
+        auto now = std::time(nullptr);
+        auto tm = *std::localtime(&now);
+        char timestamp[64];
+        std::strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &tm);
+
         auto print = [&](const char* name, std::atomic<long long>& acc, std::atomic<unsigned long>& calls) {
             unsigned long c = calls.load(std::memory_order_relaxed);
             long long total = acc.load(std::memory_order_relaxed);
             double avg = c ? static_cast<double>(total) / c : 0.0;
-            csv << name << ',' << total << ',' << c << ',' << avg << '\n';
+            csv << timestamp << ',' << name << ',' << total << ',' << c << ',' << avg << '\n';
         };
+
         print("DominoLineBuilder::DominoLineBuilder", g_ctor_us, g_ctor_calls);
         print("DominoLineBuilder::nextRight", g_next_us, g_next_calls);
         print("DominoLineBuilder::displayLine", g_display_us, g_display_calls);
         csv.close();
     }
 
-    
     struct AtExitRegister { AtExitRegister() { std::atexit(writeTimingsCsv); } } atExitRegister;
-} 
+}
+
+
+
+
+
 
 Domino::Domino(std::string theBlueSymbol, std::string theRedSymbol)
 {
@@ -79,7 +100,7 @@ DominoLineBuilder::DominoLineBuilder(unsigned long int totalNumberOfDominoes, st
 
         disorderedDominoes.push_back(Domino(aBlueSymbol, aRedSymbol));
     }
-    
+
 }
 
 bool DominoLineBuilder::nextRight()
@@ -113,7 +134,7 @@ void DominoLineBuilder::displayLine(std::ostream& outputStream)
     {
         outputStream << eachDomino.blueSymbol << ':' << eachDomino.redSymbol << ' ' << std::endl;
     }
-   
+
 }
 
 

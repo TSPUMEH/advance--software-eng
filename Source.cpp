@@ -3,13 +3,13 @@
 #include <stdexcept>
 #include <string>
 
-#include "header.h"
+#include "Header.h"
 
 int main() {
     const unsigned long int datasetSize = 9;
 
     const std::string filepath =
-        R"(C:\Users\umeh uchenna\Documents\school\code\adv software\dominoes-test_data (1)\dominoes-test_data\10\10-input.txt)";
+        R"(/Users/sentineli/Documents/code projects/advance-software-coursework/dominoes-test_data/20/20-input.txt)";
 
     std::ifstream theInputStream(filepath);
     if (!theInputStream.good())
