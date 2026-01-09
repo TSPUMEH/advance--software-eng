@@ -98,7 +98,7 @@ DominoLineBuilder::DominoLineBuilder(unsigned long int totalNumberOfDominoes, st
         std::getline(dominoInputData, aBlueSymbol, ':');
         std::getline(dominoInputData, aRedSymbol, '\n');
 
-        disorderedDominoes.push_back(Domino(aBlueSymbol, aRedSymbol));
+        disorderedDominoes.emplace_back(aBlueSymbol, aRedSymbol);
     }
 
 }
