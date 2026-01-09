@@ -20,3 +20,6 @@ timestamp,function,total_microseconds,call_count,average_microseconds,data_size,
 09/01/2026 13:22,DominoLineBuilder::DominoLineBuilder,1632,1,1632,3000,,,
 09/01/2026 13:22,DominoLineBuilder::DominoLineBuilder,2047,1,2047,4000,,,
 09/01/2026 13:24,DominoLineBuilder::DominoLineBuilder,2469,1,2469,5000,,,
+
+2026-01-09 14:38:13,DominoLineBuilder::DominoLineBuilder,2256,1,2256
+2026-01-09 14:38:36,DominoLineBuilder::DominoLineBuilder,2405,1,2405
