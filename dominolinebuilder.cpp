@@ -17,14 +17,14 @@ using std::chrono::duration_cast;
 
 namespace {
     // Accumulators for timings (microseconds) and counts.
-    std::atomic<long long> g_ctor_us{0};
-    std::atomic<unsigned long> g_ctor_calls{0};
+    std::atomic<long long> Dlinebuilder{0};
+    std::atomic<unsigned long> Dlinebuilder_calls{0};
 
-    std::atomic<long long> g_next_us{0};
-    std::atomic<unsigned long> g_next_calls{0};
-
-    std::atomic<long long> g_display_us{0};
-    std::atomic<unsigned long> g_display_calls{0};
+    // std::atomic<long long> nextrigth_us{0};
+    // std::atomic<unsigned long> nextrigth_calls{0};
+    //
+    // std::atomic<long long> fdisplayLine{0};
+    // std::atomic<unsigned long> fdisplayline_calls{0};
 
     // RAII helper to record elapsed time into provided accumulators.
     struct ScopedRecord {
@@ -36,7 +36,7 @@ namespace {
             : start(steady_clock::now()), accum(a), calls(c) {}
 
         ~ScopedRecord() {
-            auto dur = duration_cast<microseconds>(steady_clock::now() - start).count();
+            auto dur = duration_cast<std::chrono::microseconds>(steady_clock::now() - start).count();
             accum.fetch_add(dur, std::memory_order_relaxed);
             calls.fetch_add(1u, std::memory_order_relaxed);
         }
@@ -44,15 +44,15 @@ namespace {
 
     // Write CSV
     void writeTimingsCsv() {
-        // Check if file exists to decide whether to write header
+        // Check if file exists
         bool fileExists = std::ifstream("timings.csv").good();
 
         std::ofstream csv("timings.csv", std::ios::app); // Changed to append mode
         if (!csv.is_open()) return;
 
-        // Write header only if file is new
+        // Write header
         if (!fileExists) {
-            csv << "timestamp,function,total_microseconds,call_count,average_microseconds\n";
+            csv << "timestamp,function,total_microseconds,call_count,average_microseconds,data_size\n";
         }
 
         // Get current timestamp
@@ -68,15 +68,14 @@ namespace {
             csv << timestamp << ',' << name << ',' << total << ',' << c << ',' << avg << '\n';
         };
 
-        print("DominoLineBuilder::DominoLineBuilder", g_ctor_us, g_ctor_calls);
-        print("DominoLineBuilder::nextRight", g_next_us, g_next_calls);
-        print("DominoLineBuilder::displayLine", g_display_us, g_display_calls);
+        print("DominoLineBuilder::DominoLineBuilder", Dlinebuilder, Dlinebuilder_calls);
+        // print("DominoLineBuilder::nextRight", nextrigth_us, nextrigth_calls);
+        // print("DominoLineBuilder::displayLine", fdisplayLine, fdisplayline_calls);
         csv.close();
     }
 
     struct AtExitRegister { AtExitRegister() { std::atexit(writeTimingsCsv); } } atExitRegister;
 }
-
 
 
 
@@ -88,9 +87,10 @@ Domino::Domino(std::string theBlueSymbol, std::string theRedSymbol)
     redSymbol = theRedSymbol;
 }
 
+// Dlinebuilder for time in microseconds, Dlinebuilder_calls for counts
 DominoLineBuilder::DominoLineBuilder(unsigned long int totalNumberOfDominoes, std::istream& dominoInputData)
 {
-    ScopedRecord rec(g_ctor_us, g_ctor_calls);
+    ScopedRecord rec(Dlinebuilder, Dlinebuilder_calls);
 
     for (unsigned long int i = 0; i < totalNumberOfDominoes; ++i)
     {
@@ -102,10 +102,10 @@ DominoLineBuilder::DominoLineBuilder(unsigned long int totalNumberOfDominoes, st
     }
 
 }
-
+// nextrigth_us for time in microseconds, nextrigth_calls for counts
 bool DominoLineBuilder::nextRight()
 {
-    ScopedRecord rec(g_next_us, g_next_calls);
+    // ScopedRecord rec(nextrigth_us, nextrigth_calls);
 
     if (orderedLine.empty())
     {
@@ -126,9 +126,12 @@ bool DominoLineBuilder::nextRight()
     return false;
 }
 
+
+// fdisplayLine for time in microseconds, fdisplayline_calls for counts
+
 void DominoLineBuilder::displayLine(std::ostream& outputStream)
 {
-    ScopedRecord rec(g_display_us, g_display_calls);
+    // ScopedRecord rec(fdisplayLine, fdisplayline_calls);
 
     for (Domino eachDomino : orderedLine)
     {
