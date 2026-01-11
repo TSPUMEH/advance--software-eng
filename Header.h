@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 struct Domino
 {
@@ -22,7 +23,7 @@ public:
     void displayLine(std::ostream& theOutputStream);
 
 private:
-    std::vector<Domino> disorderedDominoes;
+    std::unordered_multimap<std::string, Domino> disorderedDominoes;
     std::vector<Domino> orderedLine;
 };
 

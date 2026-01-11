@@ -1,0 +1,7 @@
+timestamp,function,total_microseconds,call_count,average_microseconds,data_size
+2026-01-11 15:42:30,DominoLineBuilder::DominoLineBuilder,18,1,18
+2026-01-11 15:42:30,DominoLineBuilder::nextRight,3,6,0.5
+2026-01-11 15:42:30,DominoLineBuilder::displayLine,34,1,34
+2026-01-11 15:44:30,DominoLineBuilder::DominoLineBuilder,17,1,17
+2026-01-11 15:44:30,DominoLineBuilder::nextRight,3,6,0.5
+2026-01-11 15:44:30,DominoLineBuilder::displayLine,33,1,33

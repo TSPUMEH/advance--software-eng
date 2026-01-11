@@ -20,11 +20,11 @@ namespace {
     std::atomic<long long> Dlinebuilder{0};
     std::atomic<unsigned long> Dlinebuilder_calls{0};
 
-    // std::atomic<long long> nextrigth_us{0};
-    // std::atomic<unsigned long> nextrigth_calls{0};
-    //
-    // std::atomic<long long> fdisplayLine{0};
-    // std::atomic<unsigned long> fdisplayline_calls{0};
+    std::atomic<long long> nextright_us{0};
+    std::atomic<unsigned long> nextright_calls{0};
+
+    std::atomic<long long> fdisplayLine{0};
+    std::atomic<unsigned long> fdisplayline_calls{0};
 
     // RAII helper to record elapsed time into provided accumulators.
     struct ScopedRecord {
@@ -69,8 +69,8 @@ namespace {
         };
 
         print("DominoLineBuilder::DominoLineBuilder", Dlinebuilder, Dlinebuilder_calls);
-        // print("DominoLineBuilder::nextRight", nextrigth_us, nextrigth_calls);
-        // print("DominoLineBuilder::displayLine", fdisplayLine, fdisplayline_calls);
+        print("DominoLineBuilder::nextRight", nextright_us, nextright_calls);
+        print("DominoLineBuilder::displayLine", fdisplayLine, fdisplayline_calls);
         csv.close();
     }
 
@@ -98,29 +98,32 @@ DominoLineBuilder::DominoLineBuilder(unsigned long int totalNumberOfDominoes, st
         std::getline(dominoInputData, aBlueSymbol, ':');
         std::getline(dominoInputData, aRedSymbol, '\n');
 
-        disorderedDominoes.push_back(Domino(aBlueSymbol, aRedSymbol));
+        disorderedDominoes.emplace(aBlueSymbol, Domino(aBlueSymbol, aRedSymbol));
     }
-
 }
-// nextrigth_us for time in microseconds, nextrigth_calls for counts
+
+// nextright_us for time in microseconds, nextright_calls for counts
 bool DominoLineBuilder::nextRight()
 {
-    // ScopedRecord rec(nextrigth_us, nextrigth_calls);
+    ScopedRecord rec(nextright_us, nextright_calls);
 
     if (orderedLine.empty())
     {
-        orderedLine.push_back(disorderedDominoes.back());
-        disorderedDominoes.pop_back();
+        if (disorderedDominoes.empty())
+        {
+            return false;
+        }
+        orderedLine.push_back(disorderedDominoes.begin()->second);
+        disorderedDominoes.erase(disorderedDominoes.begin());
         return true;
     }
 
-    for (Domino currentDomino : disorderedDominoes)
+    auto range = disorderedDominoes.equal_range(orderedLine.back().redSymbol);
+    if (range.first != range.second)
     {
-        if (currentDomino.blueSymbol == orderedLine.back().redSymbol)
-        {
-            orderedLine.push_back(currentDomino);
-            return true;
-        }
+        orderedLine.push_back(range.first->second);
+        disorderedDominoes.erase(range.first);
+        return true;
     }
 
     return false;
@@ -131,7 +134,7 @@ bool DominoLineBuilder::nextRight()
 
 void DominoLineBuilder::displayLine(std::ostream& outputStream)
 {
-    // ScopedRecord rec(fdisplayLine, fdisplayline_calls);
+    ScopedRecord rec(fdisplayLine, fdisplayline_calls);
 
     for (Domino eachDomino : orderedLine)
     {
