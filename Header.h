@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <deque>
 
 struct Domino
 {
@@ -20,11 +21,14 @@ class DominoLineBuilder
 public:
     DominoLineBuilder(unsigned long int totalNumberOfDominoes, std::istream& dominoInputData);
     bool nextRight();
+    bool nextLeft();
     void displayLine(std::ostream& theOutputStream);
 
 private:
-    std::unordered_multimap<std::string, Domino> disorderedDominoes;
-    std::vector<Domino> orderedLine;
+    void removeDominoFromMaps(const Domino& domino);
+    std::unordered_multimap<std::string, Domino> disorderedDominoesByBlue;
+    std::unordered_multimap<std::string, Domino> disorderedDominoesByRed;
+    std::deque<Domino> orderedLine;
 };
 
 #endif
