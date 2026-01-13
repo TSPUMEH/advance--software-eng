@@ -98,32 +98,80 @@ DominoLineBuilder::DominoLineBuilder(unsigned long int totalNumberOfDominoes, st
         std::getline(dominoInputData, aBlueSymbol, ':');
         std::getline(dominoInputData, aRedSymbol, '\n');
 
-        disorderedDominoes.push_back(Domino(aBlueSymbol, aRedSymbol));
+        Domino newDomino(aBlueSymbol, aRedSymbol);
+        disorderedDominoesByBlue.emplace(aBlueSymbol, newDomino);
+        disorderedDominoesByRed.emplace(aRedSymbol, newDomino);
     }
-
 }
-// nextrigth_us for time in microseconds, nextrigth_calls for counts
+// nextright_us for time in microseconds, nextright_calls for counts
 bool DominoLineBuilder::nextRight()
 {
-    // ScopedRecord rec(nextrigth_us, nextrigth_calls);
+    // ScopedRecord rec(nextright_us, nextright_calls);
 
     if (orderedLine.empty())
     {
-        orderedLine.push_back(disorderedDominoes.back());
-        disorderedDominoes.pop_back();
+        if (disorderedDominoesByBlue.empty())
+        {
+            return false;
+        }
+        Domino firstDomino = disorderedDominoesByBlue.begin()->second;
+        orderedLine.push_back(firstDomino);
+        removeDominoFromMaps(firstDomino);
         return true;
     }
 
-    for (Domino currentDomino : disorderedDominoes)
+    auto range = disorderedDominoesByBlue.equal_range(orderedLine.back().redSymbol);
+    if (range.first != range.second)
     {
-        if (currentDomino.blueSymbol == orderedLine.back().redSymbol)
-        {
-            orderedLine.push_back(currentDomino);
-            return true;
-        }
+        Domino foundDomino = range.first->second;
+        orderedLine.push_back(foundDomino);
+        removeDominoFromMaps(foundDomino);
+        return true;
     }
 
     return false;
+}
+
+bool DominoLineBuilder::nextLeft()
+{
+    if (orderedLine.empty())
+    {
+        return false;
+    }
+
+    auto range = disorderedDominoesByRed.equal_range(orderedLine.front().blueSymbol);
+    if (range.first != range.second)
+    {
+        Domino foundDomino = range.first->second;
+        orderedLine.push_front(foundDomino);
+        removeDominoFromMaps(foundDomino);
+        return true;
+    }
+
+    return false;
+}
+
+void DominoLineBuilder::removeDominoFromMaps(const Domino& domino)
+{
+    auto blueRange = disorderedDominoesByBlue.equal_range(domino.blueSymbol);
+    for (auto it = blueRange.first; it != blueRange.second; ++it)
+    {
+        if (it->second.redSymbol == domino.redSymbol)
+        {
+            disorderedDominoesByBlue.erase(it);
+            break;
+        }
+    }
+
+    auto redRange = disorderedDominoesByRed.equal_range(domino.redSymbol);
+    for (auto it = redRange.first; it != redRange.second; ++it)
+    {
+        if (it->second.blueSymbol == domino.blueSymbol)
+        {
+            disorderedDominoesByRed.erase(it);
+            break;
+        }
+    }
 }
 
 
